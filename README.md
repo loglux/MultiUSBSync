@@ -2,17 +2,32 @@
 
 A small WinForms GUI for pushing a folder's contents onto one or more
 removable USB drives at once. Plain PowerShell + WinForms - no
-external dependencies, no build step, no install. Copy the two files
-onto a Windows machine and run.
+external dependencies, no build step, no install.
+
+- Pick a source folder once; it's remembered next time.
+- Copies only what changed - hash comparison skips identical files.
+- Chunked hashing/copying with byte-level progress, so a large file
+  doesn't make the window look frozen.
+- Drives are done one at a time, each showing its own `[copying]` /
+  `[DONE]` status.
+- Optional, off-by-default cleanup list for deleting specific
+  known-stale files from already-populated drives - always confirmed
+  by name before anything is deleted.
+
+## Requirements
+
+Windows only (WinForms). Works with the PowerShell that ships with
+Windows 10/11 (Windows PowerShell 5.1) - no separate install needed.
 
 ## Running it
 
-Double-click `RunMultiUSBSync.bat` (next to the `.ps1` file) - plain
-double-clicking `MultiUSBSync.ps1` itself usually opens it in a text
-editor instead of running it, and PowerShell's default execution
-policy can block an unsigned script either way. The `.bat` launcher
-runs it with `-ExecutionPolicy Bypass` for this one script only,
-without changing anything system-wide.
+Keep `MultiUSBSync.ps1` and `RunMultiUSBSync.bat` in the same folder,
+then double-click `RunMultiUSBSync.bat`. Plain double-clicking
+`MultiUSBSync.ps1` itself usually opens it in a text editor instead of
+running it, and PowerShell's default execution policy can block an
+unsigned script either way. The `.bat` launcher runs it with
+`-ExecutionPolicy Bypass` for this one script only, without changing
+anything system-wide.
 
 ## One source folder, mirrored onto each drive's root
 
