@@ -14,6 +14,8 @@ external dependencies, no build step, no install.
   known-stale files from already-populated drives - always confirmed
   by name before anything is deleted.
 
+![MultiUSBSync window](screenshot.png)
+
 ## Requirements
 
 Windows only (WinForms). Works with the PowerShell that ships with
