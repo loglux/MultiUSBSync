@@ -1,0 +1,3 @@
+# Local machine settings (remembered source folder, remove list) -
+# specific to whoever runs the tool, not something to share via git
+MultiUSBSync.settings.json
