@@ -50,7 +50,7 @@ just a local path, specific to whoever's machine runs the tool).
 |---|---|
 | **Source folder / Browse...** | Pick the folder to copy from. Path shown read-only; remembered for next time. |
 | **Files to push** | Every file under the source folder, as a collapsed tree - expand a folder to see and check individual files. Checking/unchecking a folder cascades to everything inside it. **Select All** / **Select None** toggle everything at once. |
-| **Drives found** | Every ready removable drive currently connected. **Refresh drives** re-scans after plugging in or swapping one. |
+| **Drives found** | Every ready removable drive currently connected, shown as `E:\ (VOLUME_LABEL)` - helps tell drives apart at a glance. **Refresh drives** re-scans after plugging in or swapping one. |
 | **Confirm before copying** | Off by default. When on, shows a Yes/No dialog listing exactly what's about to be copied and where, before anything happens. |
 | **Force overwrite even if identical** | Off by default. Re-copies a file even when it's byte-for-byte identical to what's already there. |
 | **Files to remove if present** | A hand-typed list of relative paths (one per line), remembered between runs. Empty by default - nothing is ever deleted unless something is listed here. See [Cleaning up stale files](#cleaning-up-stale-files) below. |

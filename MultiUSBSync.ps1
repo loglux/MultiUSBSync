@@ -135,12 +135,17 @@ function Get-TargetDrives {
     # existing, since the source folder can hold any set of
     # folders/files. Covers both updating a drive that already has
     # content and provisioning a completely blank one from scratch.
+    # No content-based filtering means no guardrail against picking an
+    # unrelated USB stick by mistake - showing the volume label (where
+    # one's set) is the one cheap thing that helps tell drives apart at
+    # a glance, since DriveInfo already exposes it for free.
     [System.IO.DriveInfo]::GetDrives() | Where-Object {
         $_.DriveType -eq 'Removable' -and $_.IsReady
     } | ForEach-Object {
+        $volumeLabel = if ($_.VolumeLabel) { $_.VolumeLabel } else { 'no label' }
         [PSCustomObject]@{
             Root  = $_.RootDirectory.FullName
-            Label = $_.RootDirectory.FullName
+            Label = "$($_.RootDirectory.FullName) ($volumeLabel)"
         }
     }
 }
@@ -203,8 +208,9 @@ $form.Controls.Add($lblDrives)
 
 $clbDrives = New-Object System.Windows.Forms.CheckedListBox
 $clbDrives.Location = New-Object System.Drawing.Point(310, 95)
-$clbDrives.Size = New-Object System.Drawing.Size(230, 160)
+$clbDrives.Size = New-Object System.Drawing.Size(240, 160)
 $clbDrives.CheckOnClick = $true
+$clbDrives.HorizontalScrollbar = $true
 $form.Controls.Add($clbDrives)
 
 
