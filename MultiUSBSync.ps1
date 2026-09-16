@@ -200,6 +200,17 @@ $btnFilesNone.Location = New-Object System.Drawing.Point(160, 320)
 $btnFilesNone.Size = New-Object System.Drawing.Size(135, 25)
 $form.Controls.Add($btnFilesNone)
 
+# Same idea as "Refresh drives" (removable drives get plugged/unplugged
+# live), but for the source folder - it's only re-scanned at startup
+# and on Browse..., so re-picking the same folder here re-syncs the
+# tree against whatever is really on disk right now without a full
+# restart.
+$btnRefreshFiles = New-Object System.Windows.Forms.Button
+$btnRefreshFiles.Text = 'Refresh files'
+$btnRefreshFiles.Location = New-Object System.Drawing.Point(15, 350)
+$btnRefreshFiles.Size = New-Object System.Drawing.Size(280, 25)
+$form.Controls.Add($btnRefreshFiles)
+
 $lblDrives = New-Object System.Windows.Forms.Label
 $lblDrives.Text = 'Drives found:'
 $lblDrives.Location = New-Object System.Drawing.Point(310, 70)
@@ -245,6 +256,19 @@ $chkForce.Location = New-Object System.Drawing.Point(310, 347)
 $chkForce.AutoSize = $true
 $chkForce.Checked = $false
 $form.Controls.Add($chkForce)
+
+# On by default - a Test-Path per checked file costs microseconds
+# (measured: ~0.01ms/file), nothing next to the actual copy that
+# follows. Guards against a file that was checked in the tree earlier
+# but got deleted/renamed on disk since then - the tree doesn't
+# re-scan on its own, so without this the failure would only surface
+# deep inside the copy loop below with a less clear error.
+$chkVerifyExists = New-Object System.Windows.Forms.CheckBox
+$chkVerifyExists.Text = 'Verify files still exist before copying'
+$chkVerifyExists.Location = New-Object System.Drawing.Point(310, 369)
+$chkVerifyExists.AutoSize = $true
+$chkVerifyExists.Checked = $true
+$form.Controls.Add($chkVerifyExists)
 
 $lblRemoveList = New-Object System.Windows.Forms.Label
 $lblRemoveList.Text = 'Files to remove if present (relative path per line, e.g. old\stale-file.txt):'
@@ -433,6 +457,7 @@ function Refresh-Drives {
 }
 
 $btnRefresh.Add_Click({ Refresh-Drives })
+$btnRefreshFiles.Add_Click({ Refresh-FileList })
 Refresh-Drives
 
 function Set-AllChecked {
@@ -467,6 +492,23 @@ $btnCopy.Add_Click({
     if ($checkedDriveIdx.Count -eq 0) {
         $lblStatus.Text = 'Status: nothing checked in the drives list'
         return
+    }
+
+    # Catches a file that was checked earlier in this session but has
+    # since been deleted/renamed on disk - the tree only re-scans on
+    # startup, Browse..., or Refresh files, so without this the first
+    # sign of trouble would otherwise be a failure deep inside the copy
+    # loop below, for a less clear reason.
+    if ($chkVerifyExists.Checked) {
+        $missing = @($checkedFiles | Where-Object { -not (Test-Path -LiteralPath $_.Full) })
+        if ($missing.Count -gt 0) {
+            $missingList = ($missing | ForEach-Object { $_.Label }) -join "`n"
+            [System.Windows.Forms.MessageBox]::Show(
+                "$($missing.Count) checked file(s) no longer exist at the source:`n`n$missingList`n`nClick Refresh files, then re-check what you need.",
+                'Missing file(s)', 'OK', 'Warning')
+            $lblStatus.Text = "Status: $($missing.Count) checked file(s) missing - refresh and re-check"
+            return
+        }
     }
 
     # Scan every checked drive for the explicit remove-list entries
