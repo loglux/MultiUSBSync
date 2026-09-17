@@ -39,6 +39,10 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# Bumped by hand on each real change - shown in the window title so
+# it's obvious at a glance which build is actually running.
+$Version = '1.2'
+
 $SettingsPath = Join-Path $PSScriptRoot 'MultiUSBSync.settings.json'
 
 function Get-Settings {
@@ -152,7 +156,7 @@ function Get-TargetDrives {
 
 # ---------- UI ----------
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'MultiUSBSync'
+$form.Text = "MultiUSBSync v$Version"
 $form.Size = New-Object System.Drawing.Size(560, 625)
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedDialog'
